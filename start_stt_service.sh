@@ -11,20 +11,13 @@ echo "CDF STT Service Startup"
 echo "======================================"
 
 # Environment variables
-# HF_TOKEN is embedded in the Docker image during build
-# If not set, check for argument or exit with error
+# HF_TOKEN is never baked into the image. Supply it at runtime from a secret,
+# as an environment variable on the instance (e.g. Vast.ai env / docker -e).
+# It is not accepted as a command-line argument, which would expose it in ps.
 if [ -z "$HF_TOKEN" ]; then
-    if [ -n "$1" ]; then
-        export HF_TOKEN="$1"
-        echo "⚠ Using HF_TOKEN from command line argument"
-    else
-        echo "ERROR: HF_TOKEN not set!"
-        echo "This should be embedded in the Docker image."
-        echo "If running manually, use: $0 <hf_token>"
-        exit 1
-    fi
+    echo "WARNING: HF_TOKEN not set; diarization disabled (transcription-only)."
 else
-    echo "✓ Using HF_TOKEN from Docker image"
+    echo "Using HF_TOKEN from the runtime environment"
 fi
 
 export LD_LIBRARY_PATH=/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH

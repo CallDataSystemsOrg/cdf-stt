@@ -20,13 +20,13 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
       - name: Log in to Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -34,7 +34,7 @@ jobs:
 
       - name: Extract metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
@@ -43,7 +43,7 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@ca052bb54ab0790a636c9b5f226502c73d547a25 # v5.4.0
         with:
           context: .
           file: ./Dockerfile
@@ -53,8 +53,8 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64
-          build-args: |
-            HF_TOKEN=${{ secrets.HF_TOKEN }}
+          # No build-args: HF_TOKEN must never be baked into this public image.
+          # It is supplied at runtime from a secret (see VASTAI_STARTUP.md).
 
       - name: Deployment Instructions
         run: |
@@ -64,7 +64,7 @@ jobs:
           echo ""
           echo "Image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
           echo ""
-          echo "HF_TOKEN embedded from GitHub secret ✓"
+          echo "HF_TOKEN is NOT in the image. Set it as a runtime env var on the instance."
           echo ""
           echo "To deploy on Vast.ai:"
           echo "1. Create instance with image: ghcr.io/calldatasystems/cdf-stt:latest"
