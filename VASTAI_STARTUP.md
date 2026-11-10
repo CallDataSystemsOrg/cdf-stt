@@ -12,15 +12,18 @@ This guide explains how to quickly start the STT service on a Vast.ai instance u
 
 ## Quick Start
 
-**HF_TOKEN is embedded in the Docker image during build from GitHub secrets!**
+**HF_TOKEN is not in the Docker image.** The image is public, so the token is
+supplied at runtime from a secret: set `HF_TOKEN` in the Vast.ai instance's
+environment variables (or `docker run -e HF_TOKEN=...`) when creating it.
+Without it the service runs in transcription-only mode.
 
-Simply SSH in and run the script:
+Then SSH in and run the script:
 
 ```bash
 # SSH into your Vast.ai instance
 ssh -i ~/.ssh/vastai -p <PORT> root@<HOST>
 
-# Run the startup script (token already embedded)
+# Run the startup script (HF_TOKEN comes from the instance environment)
 cd /app
 ./start_stt_service.sh
 ```
@@ -34,11 +37,13 @@ ssh -i ~/.ssh/vastai -p <PORT> root@<HOST> "cd /app && ./start_stt_service.sh"
 
 ### Manual Override (if needed)
 
-If the Docker image doesn't have the token embedded, you can pass it manually:
+If the instance was created without `HF_TOKEN`, export it in the shell from
+your secret store before starting (never pass it as a command-line argument):
 
 ```bash
 cd /app
-./start_stt_service.sh hf_YourTokenHere
+read -rs HF_TOKEN && export HF_TOKEN
+./start_stt_service.sh
 ```
 
 ## What the Script Does

@@ -60,9 +60,9 @@ RUN chmod +x ./start_stt_service.sh
 # Create directory for model cache
 RUN mkdir -p /root/.cache/huggingface
 
-# Accept HF_TOKEN as build argument
-ARG HF_TOKEN
-ENV HF_TOKEN=${HF_TOKEN}
+# HF_TOKEN is NEVER baked into the image (this repo and its image are public).
+# Supply it at runtime from a secret, e.g. `docker run -e HF_TOKEN=...` or the
+# Vast.ai instance environment. Without it the service runs transcription-only.
 
 # Environment variables
 ENV PYTHONUNBUFFERED=1
